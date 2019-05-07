@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/binhgo/SkynetGo/peer"
+	"SkynetGo/peer"
 )
 
 func InitServer(TcpPort string, queue *peer.PeerQueue) *net.Conn {

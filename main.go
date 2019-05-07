@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/binhgo/SkynetGo/Connection"
-	"github.com/binhgo/SkynetGo/peer"
+	"SkynetGo/Connection"
+	"SkynetGo/peer"
 )
 
 var TCPPORT = ":6789"

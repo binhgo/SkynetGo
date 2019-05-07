@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/binhgo/SkynetGo/peer"
+	"SkynetGo/peer"
 )
 
 func InitClient(peer *peer.Peer) {
