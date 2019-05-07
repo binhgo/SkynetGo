@@ -23,6 +23,7 @@ func InitClient(peer *peer.Peer) {
 	go receiveData(conn)
 }
 
+//Send data to server
 func SendDataToServer(conn net.Conn, data string) {
 	fmt.Printf("%s", "Client send data...\n")
 
