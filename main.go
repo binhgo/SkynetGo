@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"SkynetGo/Connection"
+	"SkynetGo/connection"
 	"SkynetGo/peer"
 )
 
@@ -18,10 +18,10 @@ var peerQueue *peer.PeerQueue = new(peer.PeerQueue)
 func main() {
 	// Mock
 	tempPeers := CreatePeerQueue()
-	//go LogPeerQueue()
+	// go LogPeerQueue()
 
 	// Init Server at first to listen to all incoming messages
-	go Connection.InitServer(TCPPORT, peerQueue)
+	go connection.InitServer(TCPPORT, peerQueue)
 	// Mock
 	go InitFAKEClients(tempPeers)
 	go UpdateFAKEClients()
@@ -38,7 +38,7 @@ func InitFAKEClients(clients []*peer.Peer) {
 
 	// Check peers list and setup new clients connect to these peer's server
 	for _, p := range clients {
-		Connection.InitClient(p)
+		connection.InitClient(p)
 	}
 
 }
@@ -59,7 +59,7 @@ func InitClients() {
 
 		// Check peers list and setup new clients connect to these peer's server
 		for _, p := range peers {
-			Connection.InitClient(p)
+			connection.InitClient(p)
 		}
 	}
 }
@@ -71,7 +71,7 @@ func TestSendToClient() {
 
 		count++
 		message := fmt.Sprintf("Hello from SERVER. Count %d", count)
-		Connection.SendDataToAllClients(peerQueue, message)
+		connection.SendDataToAllClients(peerQueue, message)
 	}
 }
 
