@@ -92,7 +92,7 @@ func LogPeerQueue() {
 	for {
 		time.Sleep(time.Second * 3)
 		for _, p := range peerQueue.Peers {
-			log.Printf("Queue: %s", p)
+			log.Printf("Queue: %s", p.ServerPort)
 		}
 	}
 }
