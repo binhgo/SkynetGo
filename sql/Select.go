@@ -1,6 +1,10 @@
 package sql
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+	"reflect"
+)
 
 // SELECT * FROM table WHERE key = 'value' and key = 'value' order by
 
@@ -54,6 +58,23 @@ func (builder *QueryBuilder) OrderBy(column, orderType OrderType) *QueryBuilder 
 	return builder
 }
 
-func (builder *QueryBuilder) Get() string {
-	return builder.Query
+func (builder *QueryBuilder) Exec(db *sql.DB, result *interface{}) string {
+
+	if reflect.ValueOf(result).Kind() == reflect.Struct {
+
+	}
+
+	rows, _ := db.Query(builder.Query)
+
+	var id int
+	var firstname string
+	var lastname string
+
+	str, err := rows.Columns()
+	
+	for rows.Next() {
+		rows.Scan(&id, &firstname, &lastname)
+		// fmt.Println(strconv.Itoa(id) + ": " + firstname + " " + lastname)
+
+	}
 }

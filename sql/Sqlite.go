@@ -49,6 +49,10 @@ func CreateDB(db *sql.DB) error {
 	return nil
 }
 
+func Update() {
+
+}
+
 func QueryByName(db *sql.DB, name string) (string, error) {
 
 	rows, err := db.Query("SELECT id, firstname, lastname FROM people WHERE firstname = '" + name + "'")
