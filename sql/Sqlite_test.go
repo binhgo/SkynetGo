@@ -26,17 +26,17 @@ func TestCreateDB(t *testing.T) {
 
 func TestQueryString_From(t *testing.T) {
 	assert := assert.New(t)
-
-	builder := &QueryBuilder{}
-	get := builder.Select().
+	builder := &Builder{}
+	get := builder.Select([]string{"*"}).
 		From("people").
 		Where("firstname", EQUAL, "Ric").
 		AndWhere("lastname", EQUAL, "abc").
-		OrderBy("lastname", DESC)
+		OrderBy("lastname", DESC).
+		Get()
 
 	fmt.Println(get)
 
-	assert.Equal("select * from people", get)
+	assert.Equal("SELECT * FROM people", get)
 }
 
 // func TestInsert(t *testing.T) {
