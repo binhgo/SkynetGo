@@ -31,7 +31,7 @@ func CreateDB(db *sql.DB, objects []interface{}) error {
 
 	for _, object := range objects {
 
-		var createQuery string
+		createQuery := ""
 
 		if reflect.ValueOf(object).Kind() == reflect.Struct {
 			tableName := reflect.TypeOf(object).Name()
@@ -42,7 +42,7 @@ func CreateDB(db *sql.DB, objects []interface{}) error {
 			for i := 0; i < v.NumField(); i++ {
 
 				fieldName := v.Type().Field(i).Name
-				createQuery = fmt.Sprintf(", %s %s TEXT", createQuery, fieldName)
+				createQuery = fmt.Sprintf("%s, %s TEXT", createQuery, fieldName)
 
 			}
 
@@ -53,15 +53,18 @@ func CreateDB(db *sql.DB, objects []interface{}) error {
 	}
 
 	for _, table := range createTableQuery {
-		statement, err := db.Prepare(table)
-		if err != nil {
-			return err
-		}
 
-		_, err = statement.Exec()
-		if err != nil {
-			return err
-		}
+		fmt.Println(table)
+
+		// statement, err := db.Prepare(table)
+		// if err != nil {
+		// 	return err
+		// }
+		//
+		// _, err = statement.Exec()
+		// if err != nil {
+		// 	return err
+		// }
 	}
 
 	return nil

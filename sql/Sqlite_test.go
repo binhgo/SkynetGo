@@ -1,14 +1,24 @@
 package sql
 
 import (
-	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
+type Message struct {
+	id      string
+	content string
+	email   string
+}
+
+type Product struct {
+	id    string
+	name  string
+	price string
+}
+
 func TestOpenDB(t *testing.T) {
-	db := OpenDB()
+	db := GetDB()
+	defer db.Close()
 
 	if db == nil {
 		t.Errorf("Error TestOpenDB")
@@ -16,28 +26,37 @@ func TestOpenDB(t *testing.T) {
 }
 
 func TestCreateDB(t *testing.T) {
-	db := OpenDB()
-	err := CreateDB(db)
+	db := GetDB()
+	defer db.Close()
+
+	var product Product
+	var mess Message
+
+	var tables []interface{}
+
+	tables = append(tables, product, mess)
+
+	err := CreateDB(db, tables)
 
 	if err != nil {
 		t.Errorf("Error TestCreateDB")
 	}
 }
 
-func TestQueryString_From(t *testing.T) {
-	assert := assert.New(t)
-	builder := &Builder{}
-	get := builder.Select([]string{"*"}).
-		From("people").
-		Where("firstname", EQUAL, "Ric").
-		AndWhere("lastname", EQUAL, "abc").
-		OrderBy("lastname", DESC).
-		Get()
-
-	fmt.Println(get)
-
-	assert.Equal("SELECT * FROM people", get)
-}
+// func TestQueryString_From(t *testing.T) {
+// 	//assert := assert.New(t)
+// 	builder := &Builder{}
+// 	get := builder.Select([]string{"*"}).
+// 		From("people").
+// 		Where("firstname", EQUAL, "Ric").
+// 		AndWhere("lastname", EQUAL, "abc").
+// 		OrderBy("lastname", DESC).
+// 		Get()
+//
+// 	fmt.Println(get)
+//
+// 	//assert.Equal("SELECT * FROM people", get)
+// }
 
 // func TestInsert(t *testing.T) {
 // 	assert := assert.New(t)

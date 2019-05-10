@@ -2,7 +2,7 @@ package sql
 
 import (
 	"fmt"
-	"github.com/labstack/gommon/log"
+	"log"
 	"strings"
 )
 
