@@ -3,8 +3,6 @@ package sql
 import (
 	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestOpenDB(t *testing.T) {
@@ -25,18 +23,21 @@ func TestCreateDB(t *testing.T) {
 }
 
 func TestQueryString_From(t *testing.T) {
-	assert := assert.New(t)
+	//assert := assert.New(t)
 
 	builder := &QueryBuilder{}
 	get := builder.Select().
 		From("people").
-		Where("firstname", EQUAL, "Ric").
-		AndWhere("lastname", EQUAL, "abc").
+		Where("firstname", EQUAL, "Nic").
 		OrderBy("lastname", DESC)
 
 	fmt.Println(get)
 
-	assert.Equal("select * from people", get)
+	db := OpenDB()
+	//Insert(db)
+	get.Exec(db)
+
+	//assert.Equal("select * from people", get)
 }
 
 // func TestInsert(t *testing.T) {

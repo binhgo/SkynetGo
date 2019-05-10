@@ -2,18 +2,20 @@ package sql
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"reflect"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func GetDB() *sql.DB {
-	db := OpenDB()
+	db := openDB("./skynet.db")
 	return db
 }
 
-func OpenDB() *sql.DB {
-	database, err := sql.Open("sqlite3", "./skynet.db")
+func openDB(dbName string) *sql.DB {
+	database, err := sql.Open("sqlite3", dbName)
 	if err != nil {
 		log.Fatalf("Panic. Open DB Fail: %s", err)
 		return nil
@@ -22,64 +24,45 @@ func OpenDB() *sql.DB {
 	return database
 }
 
-func CreateDB(db *sql.DB) error {
-	table1 := "CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, firstname TEXT, lastname TEXT)"
-	table2 := "CREATE TABLE IF NOT EXISTS product (id INTEGER PRIMARY KEY, name TEXT, price TEXT)"
+// CREATE TABLE IF NOT EXISTS people (id INTEGER PRIMARY KEY, firstname TEXT, lastname TEXT)
+func CreateDB(db *sql.DB, objects []interface{}) error {
 
-	statement1, err := db.Prepare(table1)
-	if err != nil {
-		return err
+	var createTableQuery []string
+
+	for _, object := range objects {
+
+		var createQuery string
+
+		if reflect.ValueOf(object).Kind() == reflect.Struct {
+			tableName := reflect.TypeOf(object).Name()
+			createQuery = fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (id INTEGER PRIMARY KEY AUTOINCREMENT", tableName)
+
+			v := reflect.ValueOf(object)
+
+			for i := 0; i < v.NumField(); i++ {
+
+				fieldName := v.Type().Field(i).Name
+				createQuery = fmt.Sprintf(", %s %s TEXT", createQuery, fieldName)
+
+			}
+
+			createQuery = fmt.Sprintf("%s)", createQuery)
+		}
+
+		createTableQuery = append(createTableQuery, createQuery)
 	}
 
-	statement2, err := db.Prepare(table2)
-	if err != nil {
-		return err
-	}
+	for _, table := range createTableQuery {
+		statement, err := db.Prepare(table)
+		if err != nil {
+			return err
+		}
 
-	_, err = statement1.Exec()
-	if err != nil {
-		return err
-	}
-
-	_, err = statement2.Exec()
-	if err != nil {
-		return err
+		_, err = statement.Exec()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
-}
-
-func Update() {
-
-}
-
-func QueryByName(db *sql.DB, name string) (string, error) {
-
-	rows, err := db.Query("SELECT id, firstname, lastname FROM people WHERE firstname = '" + name + "'")
-
-	if err != nil {
-		return "", err
-	}
-
-	var id int
-	var firstname string
-	var lastname string
-	for rows.Next() {
-		rows.Scan(&id, &firstname, &lastname)
-	}
-
-	return firstname, nil
-}
-
-func Query(db *sql.DB) {
-
-	rows, _ := db.Query("SELECT id, firstname, lastname FROM people")
-	var id int
-	var firstname string
-	var lastname string
-	for rows.Next() {
-		rows.Scan(&id, &firstname, &lastname)
-		// fmt.Println(strconv.Itoa(id) + ": " + firstname + " " + lastname)
-
-	}
 }

@@ -3,7 +3,6 @@ package sql
 import (
 	"database/sql"
 	"fmt"
-	"reflect"
 )
 
 // SELECT * FROM table WHERE key = 'value' and key = 'value' order by
@@ -58,23 +57,12 @@ func (builder *QueryBuilder) OrderBy(column, orderType OrderType) *QueryBuilder 
 	return builder
 }
 
-func (builder *QueryBuilder) Exec(db *sql.DB, result *interface{}) string {
+func (builder *QueryBuilder) Exec(db *sql.DB) (*sql.Rows, error) {
 
-	if reflect.ValueOf(result).Kind() == reflect.Struct {
-
+	rows, err := db.Query(builder.Query)
+	if err != nil {
+		return nil, err
 	}
 
-	rows, _ := db.Query(builder.Query)
-
-	var id int
-	var firstname string
-	var lastname string
-
-	str, err := rows.Columns()
-	
-	for rows.Next() {
-		rows.Scan(&id, &firstname, &lastname)
-		// fmt.Println(strconv.Itoa(id) + ": " + firstname + " " + lastname)
-
-	}
+	return rows, nil
 }
