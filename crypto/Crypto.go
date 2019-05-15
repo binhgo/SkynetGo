@@ -7,14 +7,15 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"io/ioutil"
+	"log"
 	"math/big"
 	"os"
 )
 
 type MySignature struct {
-	SignHash []byte
-	R        *big.Int
-	S        *big.Int
+	R *big.Int
+	S *big.Int
 }
 
 func NewKeyPair() *dsa.PrivateKey {
@@ -42,8 +43,10 @@ func Sign(privateKey *dsa.PrivateKey, dataToSign string) *MySignature {
 	r := big.NewInt(0)
 	s := big.NewInt(0)
 
-	io.WriteString(h, "This is the message to be signed and verified!")
+	io.WriteString(h, dataToSign)
 	signHash := h.Sum(nil)
+
+	log.Printf("SIGN: %x\n", signHash)
 
 	r, s, err := dsa.Sign(rand.Reader, privateKey, signHash)
 	if err != nil {
@@ -54,13 +57,64 @@ func Sign(privateKey *dsa.PrivateKey, dataToSign string) *MySignature {
 	// sig = append(sig, s.Bytes()...)
 	// fmt.Printf("Signature : %x\n", sig)
 
-	return &MySignature{SignHash: signHash, R: r, S: s}
+	return &MySignature{R: r, S: s}
 }
 
-func Verify(pubKey *dsa.PublicKey, mySig *MySignature) bool {
+func SignFile(privateKey *dsa.PrivateKey, filePath string) (*MySignature, error) {
 
-	verifyStatus := dsa.Verify(pubKey, mySig.SignHash, mySig.R, mySig.S)
-	fmt.Println(verifyStatus) // should be true
+	// read file content
+	fileContent, err := readFile(filePath)
+	if err != nil {
+		return nil, err
+	}
 
-	return verifyStatus
+	// Sign
+	mySig := Sign(privateKey, fileContent)
+
+	return mySig, nil
+}
+
+func Verify(pubKey *dsa.PublicKey, mySig *MySignature, dataToVerify string) bool {
+
+	// re-compute the signHash from dataToVerify
+	var h hash.Hash
+	h = md5.New()
+	io.WriteString(h, dataToVerify)
+	signHash := h.Sum(nil)
+
+	log.Printf("VERIFY: %x\n", signHash)
+
+	// verify data with signature R, S and Pubkey
+	ok := dsa.Verify(pubKey, signHash, mySig.R, mySig.S)
+
+	return ok
+}
+
+func VerifyFile(pubKey *dsa.PublicKey, mySig *MySignature, filePath string) (*bool, error) {
+
+	// read file content
+	fileContent, err := readFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// verify
+	ok := Verify(pubKey, mySig, fileContent)
+	return &ok, nil
+}
+
+func readFile(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	b, err := ioutil.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+
+	result := string(b)
+	return result, nil
 }
