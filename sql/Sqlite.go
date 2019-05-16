@@ -56,15 +56,15 @@ func CreateDB(db *sql.DB, objects []interface{}) error {
 
 		fmt.Println(table)
 
-		// statement, err := db.Prepare(table)
-		// if err != nil {
-		// 	return err
-		// }
-		//
-		// _, err = statement.Exec()
-		// if err != nil {
-		// 	return err
-		// }
+		statement, err := db.Prepare(table)
+		if err != nil {
+			return err
+		}
+
+		_, err = statement.Exec()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
