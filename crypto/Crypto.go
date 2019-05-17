@@ -7,10 +7,11 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"io/ioutil"
 	"log"
 	"math/big"
 	"os"
+
+	"SkynetGo/util"
 )
 
 type MySignature struct {
@@ -33,6 +34,13 @@ func NewKeyPair() *dsa.PrivateKey {
 	dsa.GenerateKey(privateKey, rand.Reader) // this generates a public & private key pair
 
 	return privateKey
+}
+
+func Sign1() *MySignature {
+
+	var mySig MySignature
+
+	return &mySig
 }
 
 func Sign(privateKey *dsa.PrivateKey, dataToSign string) *MySignature {
@@ -63,7 +71,7 @@ func Sign(privateKey *dsa.PrivateKey, dataToSign string) *MySignature {
 func SignFile(privateKey *dsa.PrivateKey, filePath string) (*MySignature, error) {
 
 	// read file content
-	fileContent, err := readFile(filePath)
+	fileContent, err := util.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +101,7 @@ func Verify(pubKey *dsa.PublicKey, mySig *MySignature, dataToVerify string) bool
 func VerifyFile(pubKey *dsa.PublicKey, mySig *MySignature, filePath string) (*bool, error) {
 
 	// read file content
-	fileContent, err := readFile(filePath)
+	fileContent, err := util.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -101,20 +109,4 @@ func VerifyFile(pubKey *dsa.PublicKey, mySig *MySignature, filePath string) (*bo
 	// verify
 	ok := Verify(pubKey, mySig, fileContent)
 	return &ok, nil
-}
-
-func readFile(path string) (string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	b, err := ioutil.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-
-	result := string(b)
-	return result, nil
 }
