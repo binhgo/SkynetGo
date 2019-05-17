@@ -26,3 +26,6 @@ func (pm *PostManager) LoadPost(page int) {
 	// builder.Select().From()
 
 }
+
+
+
