@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"SkynetGo/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +18,7 @@ func TestCacheFactory_NewCache(t *testing.T) {
 	cacheFactory := &CacheFactory{ThresholdInKilobytes: 1, Lock: lock}
 
 	// test memcache
-	config1 := &Config{"persons", 10, queryPersonFromMySQL}
+	config1 := &Config{"persons", 10, queryPersonFromMySQLTestMemCache}
 	cache := cacheFactory.NewCacheAndRun(config1)
 	// test
 	ass.NotNil(cache)
@@ -34,13 +35,13 @@ func TestCacheFactory_NewCache(t *testing.T) {
 	log.Println(result)
 
 	// test filecache
-	config2 := &Config{"cities", 20, queryCityFromMySQL}
+	config2 := &Config{"cities", 20, queryCityFromMySQLTestFileCache}
 	fileCache := cacheFactory.NewCacheAndRun(config2)
 	// test
 	ass.NotNil(fileCache)
 	ass.Implements((*Cache)(nil), fileCache)
 	_, ok2 := fileCache.(*FileCache)
-	ass.False(ok2)
+	ass.True(ok2)
 
 	time.Sleep(time.Second * 1)
 	result2, err := cacheFactory.GetData("cities")
@@ -48,10 +49,11 @@ func TestCacheFactory_NewCache(t *testing.T) {
 	log.Println(result2)
 }
 
-func queryCityFromMySQL() string {
-	return "big data"
+func queryCityFromMySQLTestFileCache() string {
+	data, _ := util.ReadFile("./test.txt")
+	return data
 }
 
-func queryPersonFromMySQL() string {
+func queryPersonFromMySQLTestMemCache() string {
 	return "This is test data from mysql"
 }
